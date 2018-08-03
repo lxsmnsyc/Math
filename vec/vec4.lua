@@ -8,6 +8,12 @@ ffi.cdef[[
     } vec4;
 ]]
 
+local EPSILON = 0.000001;
+
+local function exactEqual(a, b)
+    return abs(a - b) <= EPSILON*max(1.0, max(abs(a), abs(b)))
+end
+
 local function assertParams(act, method, param, msg)
     assert(act, "vec4."..method..": parameter \""..param.."\" "..msg)
 end
@@ -131,7 +137,7 @@ function vec4.__eq(a, b)
     assertParams(isvec(a), "__eq", "a", "is not a vec4")
     assertParams(isvec(b), "__eq", "b", "is not a vec4")
     
-    return a.x == b.x and a.y == b.y and a.z == b.z and a.w == b.w
+    return exactEqual(a.x, b.x) and exactEqual(a.y, b.y) and exactEqual(a.w, b.w)
 end
 
 function vec4.__tostring(v)
@@ -204,58 +210,47 @@ function vec4.abs(v)
     return vec4(abs(v.x), abs(v.y), abs(v.z), abs(v.w))
 end
 
+local function eq(a, b) return exactEqual(a, b) and 1 or 0 end
+local function ne(a, b) return exactEqual(a, b) and 0 or 1 end
+local function lt(a, b) return a < b and 1 or 0 end
+local function gt(a, b) return a > b and 1 or 0 end
+local function le(a, b) return lt(a, b) or eq(a, b) end
+local function ge(a, b) return gt(a, b) or eq(a, b) end
+
 function vec4.eq(a, b)
     assertParams(isvec(a), "eq", "a", "is not a vec4")
     assertParams(isvec(b) or isnum(b), "eq", "b", "is neither a number nor a vec4")
-    if(isnum(b)) then
-        return vec4(a.x == b and 1 or 0, a.y == b and 1 or 0, a.z == b and 1 or 0, a.w == b and 1 or 0)
-    end
-    return vec4(a.x == b.x and 1 or 0, a.y == b.y and 1 or 0, a.z == b.z and 1 or 0, a.w == b.w and 1 or 0)
+    return vec4.compare(a, b, eq)
 end
 
 function vec4.ne(a, b)
     assertParams(isvec(a), "ne", "a", "is not a vec4")
     assertParams(isvec(b) or isnum(b), "ne", "b", "is neither a number nor a vec4")
-    if(isnum(b)) then
-        return vec4(a.x ~= b and 1 or 0, a.y ~= b and 1 or 0, a.z ~= b and 1 or 0, a.w ~= b and 1 or 0)
-    end
-    return vec4(a.x ~= b.x and 1 or 0, a.y ~= b.y and 1 or 0, a.z ~= b.z and 1 or 0, a.w ~= b.w and 1 or 0)
+    return vec4.compare(a, b, ne)
 end
 
 function vec4.lt(a, b)
     assertParams(isvec(a), "lt", "a", "is not a vec4")
     assertParams(isvec(b) or isnum(b), "lt", "b", "is neither a number nor a vec4")
-    if(isnum(b)) then
-        return vec4(a.x < b and 1 or 0, a.y < b and 1 or 0, a.z < b and 1 or 0, a.w < b and 1 or 0)
-    end
-    return vec4(a.x < b.x and 1 or 0, a.y < b.y and 1 or 0, a.z < b.z and 1 or 0, a.w < b.w and 1 or 0)
+    return vec4.compare(a, b, lt)
 end
 
 function vec4.gt(a, b)
     assertParams(isvec(a), "gt", "a", "is not a vec4")
     assertParams(isvec(b) or isnum(b), "gt", "b", "is neither a number nor a vec4")
-    if(isnum(b)) then
-        return vec4(a.x > b and 1 or 0, a.y > b and 1 or 0, a.z > b and 1 or 0, a.w > b and 1 or 0)
-    end
-    return vec4(a.x > b.x and 1 or 0, a.y > b.y and 1 or 0, a.z > b.z and 1 or 0, a.w > b.w and 1 or 0)
+    return vec4.compare(a, b, gt)
 end
 
 function vec4.le(a, b)
     assertParams(isvec(a), "le", "a", "is not a vec4")
     assertParams(isvec(b) or isnum(b), "le", "b", "is neither a number nor a vec4")
-    if(isnum(b)) then
-        return vec4(a.x <= b and 1 or 0, a.y <= b and 1 or 0, a.z <= b and 1 or 0, a.w <= b and 1 or 0)
-    end
-    return vec4(a.x <= b.x and 1 or 0, a.y <= b.y and 1 or 0, a.z <= b.z and 1 or 0, a.w <= b.w and 1 or 0)
+    return vec4.compare(a, b, le)
 end
 
 function vec4.ge(a, b)
     assertParams(isvec(a), "ge", "a", "is not a vec4")
     assertParams(isvec(b) or isnum(b), "ge", "b", "is neither a number nor a vec4")
-    if(isnum(b)) then
-        return vec4(a.x >= b and 1 or 0, a.y >= b and 1 or 0, a.z >= b and 1 or 0, a.w >= b and 1 or 0)
-    end
-    return vec4(a.x >= b.x and 1 or 0, a.y >= b.y and 1 or 0, a.z >= b.z and 1 or 0, a.w >= b.w and 1 or 0)
+    return vec4.compare(a, b, ge)
 end
 
 
@@ -359,20 +354,12 @@ function vec4.refract(i, n, eta)
 end
 
 function vec4.__call(t, x, y, z, w)
-    local it = type(x) == "table"
     local iv = isvec(x)
-    assertParams(isnum(x) or it or iv or x == nil, "__call", "x", " is neither a number, a table nor a vec4.")
+    assertParams(isnum(x) or iv or x == nil, "__call", "x", " is neither a number, nor a vec4.")
     assertParams(isnum(y) or y == nil, "__call", "y", "is not a number.")
     assertParams(isnum(z) or z == nil, "__call", "z", "is not a number.")
     assertParams(isnum(w) or w == nil, "__call", "w", "is not a number.")
-    local k, i = false, false
-    if(it) then
-        k = (isnum(x.x) and isnum(x.y) and isnum(x.z) and isnum(x.w))
-        i = (isnum(x[1]) and isnum(x[2]) and isnum(x[3]) and isnum(x[4]))
-    end
-    assertParams(isnum(x) or iv or x == nil or it and (i or k), "new", "x", "is a table but doesn't contain valid values.")
-    if(it and i) then return ffi.new("vec4", x[1] or 0, x[2] or 0, x[3] or 0, x[4] or 0) end
-    if(it or iv) then return ffi.new("vec4", x.x or 0, x.y or 0, x.z or 0, x.w or 0) end
+    if(iv) then return ffi.new("vec4", x.x, x.y, x.z, x.w) end
     return ffi.new("vec4", x or 0, y or 0, z or 0, w or 0)
 end
 

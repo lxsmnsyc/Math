@@ -8,6 +8,12 @@ ffi.cdef[[
     } vec2;
 ]]
 
+local EPSILON = 0.000001;
+
+local function exactEqual(a, b)
+    return abs(a - b) <= EPSILON*max(1.0, max(abs(a), abs(b)))
+end
+
 local function assertParams(act, method, param, msg)
     assert(act, "vec2."..method..": parameter \""..param.."\" "..msg)
 end
@@ -121,7 +127,7 @@ function vec2.__eq(a, b)
     assertParams(isvec(a), "__eq", "a", "is not a vec2")
     assertParams(isvec(b), "__eq", "b", "is not a vec2")
     
-    return a.x == b.x and a.y == b.y
+    return exactEqual(a.x, b.x) and exactEqual(a.y, b.y)
 end
 
 function vec2.__tostring(v)
@@ -194,58 +200,47 @@ function vec2.abs(v)
     return vec2(abs(v.x), abs(v.y))
 end
 
+local function eq(a, b) return exactEqual(a, b) and 1 or 0 end
+local function ne(a, b) return exactEqual(a, b) and 0 or 1 end
+local function lt(a, b) return a < b and 1 or 0 end
+local function gt(a, b) return a > b and 1 or 0 end
+local function le(a, b) return lt(a, b) or eq(a, b) end
+local function ge(a, b) return gt(a, b) or eq(a, b) end
+
 function vec2.eq(a, b)
     assertParams(isvec(a), "eq", "a", "is not a vec2")
     assertParams(isvec(b) or isnum(b), "eq", "b", "is neither a number nor a vec2")
-    if(isnum(b)) then
-        return vec2(a.x == b and 1 or 0, a.y == b and 1 or 0)
-    end
-    return vec2(a.x == b.x and 1 or 0, a.y == b.y and 1 or 0)
+    return vec2.compare(a, b, eq)
 end
 
 function vec2.ne(a, b)
     assertParams(isvec(a), "ne", "a", "is not a vec2")
     assertParams(isvec(b) or isnum(b), "ne", "b", "is neither a number nor a vec2")
-    if(isnum(b)) then
-        return vec2(a.x ~= b and 1 or 0, a.y ~= b and 1 or 0)
-    end
-    return vec2(a.x ~= b.x and 1 or 0, a.y ~= b.y and 1 or 0)
+    return vec2.compare(a, b, ne)
 end
 
 function vec2.lt(a, b)
     assertParams(isvec(a), "lt", "a", "is not a vec2")
     assertParams(isvec(b) or isnum(b), "lt", "b", "is neither a number nor a vec2")
-    if(isnum(b)) then
-        return vec2(a.x < b and 1 or 0, a.y < b and 1 or 0)
-    end
-    return vec2(a.x < b.x and 1 or 0, a.y < b.y and 1 or 0)
+    return vec2.compare(a, b, lt)
 end
 
 function vec2.gt(a, b)
     assertParams(isvec(a), "gt", "a", "is not a vec2")
     assertParams(isvec(b) or isnum(b), "gt", "b", "is neither a number nor a vec2")
-    if(isnum(b)) then
-        return vec2(a.x > b and 1 or 0, a.y > b and 1 or 0)
-    end
-    return vec2(a.x > b.x and 1 or 0, a.y > b.y and 1 or 0)
+    return vec2.compare(a, b, gt)
 end
 
 function vec2.le(a, b)
     assertParams(isvec(a), "le", "a", "is not a vec2")
     assertParams(isvec(b) or isnum(b), "le", "b", "is neither a number nor a vec2")
-    if(isnum(b)) then
-        return vec2(a.x <= b and 1 or 0, a.y <= b and 1 or 0)
-    end
-    return vec2(a.x <= b.x and 1 or 0, a.y <= b.y and 1 or 0)
+    return vec2.compare(a, b, le)
 end
 
 function vec2.ge(a, b)
     assertParams(isvec(a), "ge", "a", "is not a vec2")
     assertParams(isvec(b) or isnum(b), "ge", "b", "is neither a number nor a vec2")
-    if(isnum(b)) then
-        return vec2(a.x >= b and 1 or 0, a.y >= b and 1 or 0)
-    end
-    return vec2(a.x >= b.x and 1 or 0, a.y >= b.y and 1 or 0)
+    return vec2.compare(a, b, ge)
 end
 
 
@@ -349,19 +344,11 @@ function vec2.refract(i, n, eta)
 end
 
 function vec2.__call(t, x, y)
-    local it = type(x) == "table"
     local iv = isvec(x)
-    assertParams(isnum(x) or it or iv or x == nil, "__call", "x", " is neither a number, a table nor a vec4.")
+    assertParams(isnum(x) or iv or x == nil, "__call", "x", " is neither a number nor a vec2.")
     assertParams(isnum(y) or y == nil, "__call", "y", "is not a number.")
-    local k, i = false, false
-    if(it) then
-        k = (isnum(x.x) and isnum(x.y))
-        i = (isnum(x[1]) and isnum(x[2]))
-    end
-    assertParams(isnum(x) or iv or x == nil or it and (i or k), "new", "x", "is a table but doesn't contain valid values.")
-    if(it and i) then return ffi.new("vec4", x[1] or 0, x[2] or 0) end
-    if(it or iv) then return ffi.new("vec4", x.x or 0, x.y or 0) end
-    return ffi.new("vec4", x or 0, y or 0)
+    if(iv) then return ffi.new("vec2", x.x, x.y) end
+    return ffi.new("vec2", x or 0, y or 0)
 end
 
 function vec2.is(v)
