@@ -133,11 +133,50 @@ function dvec4.__unm(v)
     return dvec4(-v.x, -v.y, -v.z, -v.w) 
 end
 
+
 function dvec4.__eq(a, b)
-    assertParams(isvec(a), "__eq", "a", "is not a dvec4")
-    assertParams(isvec(b), "__eq", "b", "is not a dvec4")
-    
-    return exactEqual(a.x, b.x) and exactEqual(a.y, b.y) and exactEqual(a.w, b.w)
+    assertParams(isvec(a) or isnum(a), "__eq", "a", "is not a dvec4")
+    assertParams(isvec(b) or isnum(b), "__eq", "b", "is not a dvec4")
+    if(isvec(a)) then
+        if(isvec(b)) then 
+            return exactEqual(a.x, b.x) and exactEqual(a.y, b.y)  and exactEqual(a.z, b.z) and exactEqual(a.w, b.w)
+        elseif(isnum(b)) then
+            return exactEqual(a.x, b) and exactEqual(a.y, b)  and exactEqual(a.z, b) and exactEqual(a.w, b)
+        end
+    elseif(isvec(b) and isnum(a)) then
+        return exactEqual(a, b.x) and exactEqual(a, b.y) and exactEqual(a, b.z) and exactEqual(a, b.w)
+    end
+    return false
+end
+
+function dvec4.__lt(a, b)
+    assertParams(isvec(a) or isnum(a), "__lt", "a", "is not a dvec4")
+    assertParams(isvec(b) or isnum(b), "__lt", "b", "is not a dvec4")
+    if(isvec(a)) then
+        if(isvec(b)) then 
+            return a.x < b.x and a.y < b.y and a.z < b.z and a.w < b.w
+        elseif(isnum(b)) then
+            return a.x < b and a.y < b and a.z < b and a.w < b
+        end
+    elseif(isvec(b) and isnum(a)) then
+        return a < b.x and a < b.y and a < b.z and a < b.w
+    end
+    return false
+end
+
+function dvec4.__le(a, b)
+    assertParams(isvec(a) or isnum(a), "__le", "a", "is not a dvec4")
+    assertParams(isvec(b) or isnum(b), "__le", "b", "is not a dvec4")
+    if(isvec(a)) then
+        if(isvec(b)) then 
+            return a.x <= b.x and a.y <= b.y and a.z <= b.z and a.w <= b.w
+        elseif(isnum(b)) then
+            return a.x <= b and a.y <= b and a.z <= b and a.w <= b
+        end
+    elseif(isvec(b) and isnum(a)) then
+        return a <= b.x and a <= b.y and a <= b.z and a <= b.w
+    end
+    return false
 end
 
 function dvec4.__tostring(v)

@@ -124,10 +124,48 @@ function dvec2.__unm(v)
 end
 
 function dvec2.__eq(a, b)
-    assertParams(isvec(a), "__eq", "a", "is not a dvec2")
-    assertParams(isvec(b), "__eq", "b", "is not a dvec2")
-    
-    return exactEqual(a.x, b.x) and exactEqual(a.y, b.y)
+    assertParams(isvec(a) or isnum(a), "__eq", "a", "is not a dvec2")
+    assertParams(isvec(b) or isnum(b), "__eq", "b", "is not a dvec2")
+    if(isvec(a)) then
+        if(isvec(b)) then 
+            return exactEqual(a.x, b.x) and exactEqual(a.y, b.y)
+        elseif(isnum(b)) then
+            return exactEqual(a.x, b) and exactEqual(a.y, b)
+        end
+    elseif(isvec(b) and isnum(a)) then
+        return exactEqual(a, b.x) and exactEqual(a, b.y)
+    end
+    return false
+end
+
+function dvec2.__lt(a, b)
+    assertParams(isvec(a) or isnum(a), "__lt", "a", "is not a dvec2")
+    assertParams(isvec(b) or isnum(b), "__lt", "b", "is not a dvec2")
+    if(isvec(a)) then
+        if(isvec(b)) then 
+            return a.x < b.x and a.y < b.y
+        elseif(isnum(b)) then
+            return a.x < b and a.y < b
+        end
+    elseif(isvec(b) and isnum(a)) then
+        return a < b.x and a < b.y
+    end
+    return false
+end
+
+function dvec2.__le(a, b)
+    assertParams(isvec(a) or isnum(a), "__le", "a", "is not a dvec2")
+    assertParams(isvec(b) or isnum(b), "__le", "b", "is not a dvec2")
+    if(isvec(a)) then
+        if(isvec(b)) then 
+            return a.x <= b.x and a.y <= b.y
+        elseif(isnum(b)) then
+            return a.x <= b and a.y <= b
+        end
+    elseif(isvec(b) and isnum(a)) then
+        return a <= b.x and a <= b.y
+    end
+    return false
 end
 
 function dvec2.__tostring(v)

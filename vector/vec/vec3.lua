@@ -128,11 +128,50 @@ function vec3.__unm(v)
     return vec3(-v.x, -v.y, -v.z) 
 end
 
+
 function vec3.__eq(a, b)
-    assertParams(isvec(a), "__eq", "a", "is not a vec3")
-    assertParams(isvec(b), "__eq", "b", "is not a vec3")
-    
-    return exactEqual(a.x, b.x) and exactEqual(a.y, b.y) and exactEqual(a.z, b.z)
+    assertParams(isvec(a) or isnum(a), "__eq", "a", "is not a vec3")
+    assertParams(isvec(b) or isnum(b), "__eq", "b", "is not a vec3")
+    if(isvec(a)) then
+        if(isvec(b)) then 
+            return exactEqual(a.x, b.x) and exactEqual(a.y, b.y)  and exactEqual(a.z, b.z)
+        elseif(isnum(b)) then
+            return exactEqual(a.x, b) and exactEqual(a.y, b)  and exactEqual(a.z, b)
+        end
+    elseif(isvec(b) and isnum(a)) then
+        return exactEqual(a, b.x) and exactEqual(a, b.y) and exactEqual(a, b.z)
+    end
+    return false
+end
+
+function vec3.__lt(a, b)
+    assertParams(isvec(a) or isnum(a), "__lt", "a", "is not a vec3")
+    assertParams(isvec(b) or isnum(b), "__lt", "b", "is not a vec3")
+    if(isvec(a)) then
+        if(isvec(b)) then 
+            return a.x < b.x and a.y < b.y and a.z < b.z
+        elseif(isnum(b)) then
+            return a.x < b and a.y < b and a.z < b
+        end
+    elseif(isvec(b) and isnum(a)) then
+        return a < b.x and a < b.y and a < b.z
+    end
+    return false
+end
+
+function vec3.__le(a, b)
+    assertParams(isvec(a) or isnum(a), "__le", "a", "is not a vec3")
+    assertParams(isvec(b) or isnum(b), "__le", "b", "is not a vec3")
+    if(isvec(a)) then
+        if(isvec(b)) then 
+            return a.x <= b.x and a.y <= b.y and a.z <= b.z
+        elseif(isnum(b)) then
+            return a.x <= b and a.y <= b and a.z <= b 
+        end
+    elseif(isvec(b) and isnum(a)) then
+        return a <= b.x and a <= b.y and a <= b.z
+    end
+    return false
 end
 
 function vec3.__tostring(v)
