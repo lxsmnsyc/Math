@@ -113,7 +113,7 @@ function vec3.__div(a, b)
     assertParams(isvec(a) or isnum(a), "__div", "a", "is neither a number nor a vec3")
     assertParams(isvec(b) or isnum(b), "__div", "b", "is neither a number nor a vec3")
     assertParams(not(isvec(b) and vec3.isZero(b)), "__div", "b", "is a zero vector")
-    assertParams(not(isnum(b) and b == 0), "__div", "b", "is a zero")
+    assertParams(not(isnum(b) and exactEqual(b, 0)), "__div", "b", "is a zero")
     return vec3.compare(a, b, div) 
 end
 
@@ -370,6 +370,18 @@ end
 
 function vec3.is(v)
     return isvec(v)
+end
+
+function vec3.split(v)
+    assertParams(isvec(v), "split", "v", "is not a vec3")
+    return v.x, v.y, v.z
+end
+
+function vec3.fromSpherical(radius, theta, phi)
+    assertParams(isnum(radius), "fromSpherical", "radius", "is not a number")
+    assertParams(isnum(theta), "fromSpherical", "theta", "is not a number")
+    assertParams(isnum(phi), "fromSpherical", "phi", "is not a number")
+    return vec3(sin(phi)*cos(theta)*radius, sin(phi)*sin(theta)*radius, cos(phi)*radius)
 end
 
 return vec3

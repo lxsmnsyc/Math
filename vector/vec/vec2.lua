@@ -108,7 +108,7 @@ function vec2.__div(a, b)
     assertParams(isvec(a) or isnum(a), "__div", "a", "is neither a number nor a vec2")
     assertParams(isvec(b) or isnum(b), "__div", "b", "is neither a number nor a vec2")
     assertParams(not(isvec(b) and vec2.isZero(b)), "__div", "b", "is a zero vector")
-    assertParams(not(isnum(b) and b == 0), "__div", "b", "is a zero")
+    assertParams(not(isnum(b) and exactEqual(b, 0)), "__div", "b", "is a zero")
     return vec2.compare(a, b, div) 
 end
 
@@ -355,4 +355,14 @@ function vec2.is(v)
     return isvec(v)
 end
 
+function vec2.split(v)
+    assertParams(isvec(v), "split", "v", "is not a vec2")
+    return v.x, v.y
+end
+
+function vec2.fromPolar(radius, theta)
+    assertParams(isnum(radius), "fromPolar", "radius", "is not a number")
+    assertParams(isnum(theta), "fromPolar", "theta", "is not a number")
+    return vec2(cos(theta)*radius, sin(theta)*radius)
+end
 return vec2

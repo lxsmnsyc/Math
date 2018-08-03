@@ -249,7 +249,9 @@ end
 
 function mat3.inverse(m)
     assertParams(ismat3(m), "inverse", "m", "is not a mat3")
-    return (1/mat3.determinant(m)) * mat3.adjugate(m)
+    local dete = mat3.determinant(m)
+    assert(not exactEqual(dete), "inverse", "m", "has a zero determinant")
+    return (1/dete) * mat3.adjugate(m)
 end
 
 function mat3.__div(a, b)
@@ -267,7 +269,7 @@ end
 function mat3.divComp(a, b)
     assertParams(ismat3(a) or isnum(a), "divComp", "a", "is not a number nor a mat3")
     assertParams(ismat3(b) or isnum(b), "divComp", "b", "is not a number nor a mat3")
-    assertParams(ismat3(b) or isnum(b) and b ~= 0, "divComp", "b", "cannot be used to divide \"a\"")
+    assertParams(ismat3(b) or isnum(b) and not exactEqual(b, 0), "divComp", "b", "cannot be used to divide \"a\"")
     return mat3.compare(a, b, div)
 end 
 
@@ -428,6 +430,24 @@ function mat3.__call(t, aa, ab, ac, ba, bb, bc, ca, cb, cc)
         m2[2] = cc or 0
     end 
     return m
+end
+
+function mat3.is(m)
+    return ismat3(m)
+end
+
+function mat3.row(m, r)
+    assertParams(ismat3(m), "row", "m", "is not a mat3")
+    assertParams(isnum(r), "row", "r", "is not a number")
+    local ms = m.set
+    return ms[r][0], ms[r][1], ms[r][2]
+end
+
+function mat3.col(m, c)
+    assertParams(ismat3(m), "col", "m", "is not a mat3")
+    assertParams(isnum(c), "col", "c", "is not a number")
+    local ms = m.set
+    return ms[0][c], ms[1][c], ms[2][c]
 end
 
 return mat3

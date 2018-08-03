@@ -118,7 +118,7 @@ function vec4.__div(a, b)
     assertParams(isvec(a) or isnum(a), "__div", "a", "is neither a number nor a vec4")
     assertParams(isvec(b) or isnum(b), "__div", "b", "is neither a number nor a vec4")
     assertParams(not(isvec(b) and vec4.isZero(b)), "__div", "b", "is a zero vector")
-    assertParams(not(isnum(b) and b == 0), "__div", "b", "is a zero")
+    assertParams(not(isnum(b) and exactEqual(b, 0)), "__div", "b", "is a zero")
     return vec4.compare(a, b, div) 
 end
 
@@ -365,6 +365,11 @@ end
 
 function vec4.is(v)
     return isvec(v)
+end
+
+function vec4.split(v)
+    assertParams(isvec(v), "split", "v", "is not a vec4")
+    return v.x, v.y, v.z, v.w
 end
 
 return vec4

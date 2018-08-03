@@ -230,7 +230,9 @@ function mat2.inverse(m)
     assertParams(ismat2(m), "inverse", "m", "is not a mat2")
     local ms = m.set
     local m0, m1= ms[0], ms[1]
-    return (1/mat2.determinant(m)) * mat2.adjugate(m)
+    local deter = mat2.determinant(m)
+    assertParams(not exactEqual(deter, 0), "inverse", "m", "has a zero determinant")
+    return (1/deter) * mat2.adjugate(m)
 end
 
 function mat2.__div(a, b)
@@ -248,7 +250,7 @@ end
 function mat2.divComp(a, b)
     assertParams(ismat2(a) or isnum(a), "divComp", "a", "is not a number nor a mat2")
     assertParams(ismat2(b) or isnum(b), "divComp", "b", "is not a number nor a mat2")
-    assertParams(ismat2(b) or isnum(b) and b ~= 0, "divComp", "b", "cannot be used to divide \"a\"")
+    assertParams(ismat2(b) or isnum(b) and not exactEqual(b, 0), "divComp", "b", "cannot be used to divide \"a\"")
     return mat2.compare(a, b, div)
 end 
 
@@ -335,6 +337,26 @@ end
 function mat2.__call(t, aa, ab, ba, bb)
     return new(aa, ab, ba, bb)
 end
+
+function mat2.is(m)
+    return ismat2(m)
+end
+
+function mat2.row(m, r)
+    assertParams(ismat2(m), "row", "m", "is not a mat2")
+    assertParams(isnum(r), "row", "r", "is not a number")
+    local ms = m.set
+    return ms[r][0], ms[r][1]
+end
+
+function mat2.col(m, c)
+    assertParams(ismat2(m), "col", "m", "is not a mat2")
+    assertParams(isnum(c), "col", "c", "is not a number")
+    local ms = m.set
+    return ms[0][c], ms[1][c]
+end
+
+
 
 
 return mat2
