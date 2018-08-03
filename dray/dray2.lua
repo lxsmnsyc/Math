@@ -6,7 +6,7 @@ local RAY_T_MAX = 0.000001
 local RAY_T_MIN = 1.0e30
 
 ffi.cdef[[
-    typdef struct{
+    typedef struct{
         dvec2 origin, direction;
         float tMax;
     } dray2;
@@ -24,7 +24,7 @@ local function isnum(v)
 end
 
 local function isray(r)
-    return ffi.type("dray2", r)
+    return ffi.istype("dray2", r)
 end
 
 local function assertParams(act, method, param, msg)

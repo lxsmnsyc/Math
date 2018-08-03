@@ -35,7 +35,7 @@ function complex.__call(re, im)
 end
 
 local function iscomplex(a)
-    return ffi.type("complex", a)
+    return ffi.istype("complex", a)
 end
 
 function complex.conjugate(a)
