@@ -16,29 +16,36 @@ function comparator.new(c)
     return new 
 end 
 
-function comparator:eq(a, b)
+local function __eq(a, b)
     return self.comp(a, b) == 0
 end 
 
-function comparator:lt(a, b)
+local function __lt(a, b)
     return self.comp(a, b) < 0;
 end
 
-function comparator:gt(a, b)
+local function __gt(a, b)
     return self.comp(a, b) > 0;
 end
 
-function comparator:le(a, b)
+local function __le(a, b)
     return self.comp(a, b) <= 0;
 end
 
-function comparator:ge(a, b)
+local function __ge(a, b)
     return self.comp(a, b) >= 0;
 end
 
 
-function comparator:ne(a, b)
+local function __ne(self, a, b)
     return self.comp(a,b) ~= 0;
 end
+
+comparator.eq = __eq
+comparator.ne = __ne
+comparator.lt = __lt 
+comparator.gt = __gt
+comparator.ge = __ge
+comparator.le = __le 
 
 return comparator

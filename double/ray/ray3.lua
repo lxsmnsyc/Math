@@ -1,4 +1,4 @@
-local vec3 = require "math.vector.vec3"
+local vec3 = require "math.double.vector.vec3"
 
 local ffi = require "ffi"
 
@@ -8,7 +8,7 @@ local istype, new = ffi.istype, ffi.new
 ffi.cdef[[
     typedef struct{
         vec3 origin, direction;
-        float tMax;
+        double tMax;
     } ray3;
 ]]
 

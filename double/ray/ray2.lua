@@ -1,25 +1,25 @@
-local vec3 = require "math.vector.vec3"
+local vec2 = require "math.double.vector.vec2"
 
 local ffi = require "ffi"
 
 local istype, new = ffi.istype, ffi.new
 
-
 ffi.cdef[[
     typedef struct{
-        vec3 origin, direction;
-        float tMax;
-    } ray3;
-]]
+        vec2 origin, direction;
+        double tMax;
+    } ray2;
+]]  
 
-local ray3
+local ray2
+
 
 local function isnum(v)
     return type(v) == "number"
 end
 
 local function isray(r)
-    return istype("ray3", r)
+    return istype("ray2", r)
 end
 
 local mt = {}
@@ -32,6 +32,6 @@ local mti = {
 
 mt.__index = mti
 
-ray3 = ffi.metatype("ray3", mt)
+ray2 = ffi.metatype("ray2", mt)
 
 return ray2
